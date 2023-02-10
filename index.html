@@ -16,30 +16,38 @@
 
 
 
-    <div id="app">
-        <div v-if="!gameStart">
-            <button @click="start">Start</button>
-            <input v-model="columnCount">
-            <input v-model="rowCount">
-        </div>
-        <button v-if="gameStart" @click="gameStart=false">Stop</button>
-        <h1>{{turnMessage}}</h1>
-        <br>
+    <div id="app">       
+        <div class="game">
+            <div class="board">
 
-        <div class="board">
-
-            <div class="column" v-for="(column,colIdx) in board" :id="`column-${colIdx}`">
-                <div class="indicator" :class="getColumnState(colIdx)"></div>
-                <div class="slot" v-for="(slot,slotIdx) in column" :id="`slot-${slotIdx}`"
-                    @mouseover="hoverSlot(colIdx,slotIdx)" @mouseleave="leaveSlot(colIdx,slotIdx)"
-                    @click="clickSlot(colIdx,slotIdx)" :class="getSlotState(slot)">
-                    {{`(${colIdx},${slotIdx})`}}
-                    <br>
-                    <h2 style="color:blue">{{getScore(colIdx,slotIdx)}}</h2>
+                <div class="column" v-for="(column,colIdx) in board" :id="`column-${colIdx}`">
+                    <div class="indicator" :class="getColumnState(colIdx)"></div>
+                    <div class="slot" v-for="(slot,slotIdx) in column" :id="`slot-${slotIdx}`"
+                        @mouseover="hoverSlot(colIdx,slotIdx)" @mouseleave="leaveSlot(colIdx,slotIdx)"
+                        @click="clickSlot(colIdx,slotIdx)" :class="getSlotState(slot)">
+                        <!-- {{`(${colIdx},${slotIdx})`}} -->
+                        <!-- <br> -->
+                        <!-- <h2 style="color:blue">{{getScore(colIdx,slotIdx)}}</h2> -->
+                    </div>
                 </div>
+    
             </div>
-
+            <div class="overlay" v-if="!gameStart">
+                <h1>{{turnMessage}}</h1>
+                
+              
+                <label>Columns</label>
+                <input v-model="columnCount">
+                <label>Rows</label>
+                <input v-model="rowCount">
+                <button @click="start" class="btn">Start Game</button>
+            </div>
+            <div class="bottom-panel" v-else>
+                <button @click="stop" class="btn" >Stop</button>
+            </div>
+           
         </div>
+       
 
     </div>
 
@@ -56,7 +64,7 @@
                 columnCount: 7,
                 rowCount: 6,
                 gameStart: false,
-                turnMessage: "",
+                turnMessage: "Connect 4 Dots",
 
             },
             mounted() {
@@ -299,6 +307,11 @@
                     this.scoreBoard = Array(this.columnCount).fill(Array(this.rowCount).fill(1));
                     this.gameStart = true;
                 },
+                stop(){
+                    this.board = Array(this.columnCount).fill(Array(this.rowCount).fill(0));
+                    this.scoreBoard = Array(this.columnCount).fill(Array(this.rowCount).fill(1));
+                    this.gameStart = false;
+                },
                 isFilledColumn(colIdx) {
                     if (this.board[colIdx])
                         return this.board[colIdx].filter(x => x === 0).length === 0
@@ -316,6 +329,14 @@
                     row[colIdx] = player;
                     score = this.countDots(row)[choose];
 
+                    row = row.map(x => {
+                        if (x === 0)
+                            x = player;
+                        return x;
+                    })
+
+                    if (this.countDots(row)[choose] < 4)
+                        score = 0;
 
 
                     let column = this.getColumnElements(colIdx);
