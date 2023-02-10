@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <link rel="stylesheet/less" type="text/css" href="styles.less" />
+    <script src="https://cdn.jsdelivr.net/npm/less"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+
+<body>
+
+
+
+    <div id="app">
+        <div v-if="!gameStart">
+            <button @click="start">Start</button>
+            <input v-model="columnCount">
+            <input v-model="rowCount">
+        </div>
+        <button v-if="gameStart" @click="gameStart=false">Stop</button>
+        <h1>{{turnMessage}}</h1>
+        <br>
+
+        <div class="board">
+
+            <div class="column" v-for="(column,colIdx) in board" :id="`column-${colIdx}`">
+                <div class="indicator" :class="getColumnState(colIdx)"></div>
+                <div class="slot" v-for="(slot,slotIdx) in column" :id="`slot-${slotIdx}`"
+                    @mouseover="hoverSlot(colIdx,slotIdx)" @mouseleave="leaveSlot(colIdx,slotIdx)"
+                    @click="clickSlot(colIdx,slotIdx)" :class="getSlotState(slot)">
+                    {{`(${colIdx},${slotIdx})`}}
+                    <br>
+                    <h2 style="color:blue">{{getScore(colIdx,slotIdx)}}</h2>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                board: [
+
+                ],
+                scoreBoard: [],
+                hoverColumnIndex: null,
+                currentPlayer: 1,
+                columnCount: 7,
+                rowCount: 6,
+                gameStart: false,
+                turnMessage: "",
+
+            },
+            mounted() {
+
+                this.start();
+
+            },
+            methods: {
+                hoverSlot(colIdx, slotIdx) {
+                    this.hoverColumnIndex = colIdx
+                },
+                leaveSlot(colIdx, slotIdx) {
+                    this.hoverColumnIndex = null;
+                },
+                clickSlot(colIdx, slotIdx) {
+                    if (!this.start)
+                        return;
+                    if (this.isFilledColumn(colIdx))
+                        return;
+                    if (this.currentPlayer === 1)
+                        this.move(colIdx);
+
+                },
+
+                getDiagonalUpElements(cx, cy) {
+
+                    let s = [];
+                    let b = cx + cy;
+                    for (let x = 0; x < this.columnCount; x++) {
+                        let y = -x + b;
+                        if (y >= 0 && y < this.rowCount) {
+                            if (x === cx && y === cy) {
+                                s.push
+                            }
+                            s.push(this.board[x][y]);
+                        }
+                    }
+                    return s;
+
+                },
+                selectDiagonalUpLine(cx, cy, player) {
+
+                    let s = [];
+                    let b = cx + cy;
+                    for (let x = 0; x < this.columnCount; x++) {
+                        let y = -x + b;
+                        if (y >= 0 && y < this.rowCount) {
+                            if (x === cx && y === cy) {
+                                s.push(player)
+                            } else
+                                s.push(this.board[x][y]);
+                        }
+                    }
+                    return s;
+
+                },
+                getDiagonalDownElements(cx, cy) {
+                    let s = [];
+                    let b = cy - cx;
+                    for (let x = 0; x < this.columnCount; x++) {
+                        let y = x + b;
+                        if (y >= 0 && y < this.rowCount)
+                            s.push(this.board[x][y]);
+
+                    }
+                    return s;
+                },
+                selectDiagonalDownLine(cx, cy, player) {
+                    let s = [];
+                    let b = cy - cx;
+                    for (let x = 0; x < this.columnCount; x++) {
+                        let y = x + b;
+                        if (y >= 0 && y < this.rowCount) {
+                            if (x === cx && y === cy) {
+                                s.push(player)
+                            } else
+                                s.push(this.board[x][y]);
+                        }
+
+                    }
+                    return s;
+                },
+                getColumnElements(colIdx) {
+                    return Array.from(this.board[colIdx]);
+
+                },
+                getRowElements(rowIdx) {
+
+
+                    let rowArray = []
+                    for (let j = 0; j < this.columnCount; j++) {
+                        rowArray.push(this.board[j][rowIdx])
+                    }
+                    return Array.from(rowArray);
+
+                },
+                countDots(arr) {
+                    let maxPlayerDots = 0;
+                    let maxOpponentDots = 0;
+                    let playerDots = 0;
+                    let opponentDots = 0;
+
+                    for (let i = 0; i < arr.length; i++) {
+                        // console.log(i,arr[i])
+                        if (arr[i] === 1) {
+                            playerDots++;
+                            if (playerDots > maxPlayerDots) {
+                                maxPlayerDots = playerDots;
+                            }
+                            opponentDots = 0;
+                        } else if (arr[i] === 2) {
+                            opponentDots++;
+                            if (opponentDots > maxOpponentDots) {
+                                maxOpponentDots = opponentDots;
+                            }
+                            playerDots = 0;
+                        } else {
+                            playerDots = 0;
+                            opponentDots = 0;
+                        }
+                    }
+                    return { player: maxPlayerDots, opponent: maxOpponentDots };
+                },
+                move(colIdx) {
+
+
+                    const emptyRowIndex = (this.board[colIdx].lastIndexOf(0));
+                    let data = Array.from(this.board[colIdx])
+                    data[emptyRowIndex] = this.currentPlayer === 1 ? 1 : 2;
+
+                    this.board[colIdx] = data;
+                    const winResult = this.checkWinCondition(colIdx, emptyRowIndex);
+
+
+                    if (winResult > 0) {
+                        this.gameStart = false;
+
+                        if (winResult === 1) {
+                            this.turnMessage = "You Win";
+                        } else {
+                            this.turnMessage = "You Lose";
+                        }
+                        return;
+                    }
+                    this.switchPlayer();
+                },
+
+                AIMove() {
+                    // while (true) {
+                    //     let rndCol = Math.floor(Math.random() * (this.columnCount));
+                    //     if (this.isFilledColumn(rndCol))
+                    //         continue;
+                    //     this.move(rndCol);
+                    //     break;
+                    // }
+                    let availableSlots = this.getAvailableSlots();
+                    let chooseX, chooseY;
+                    let scores = [];
+                    for (let i = 0; i < availableSlots.length; i++) {
+                        scores.push({
+                            col: i, row: availableSlots[i], score: this.getScore(i, availableSlots[i])
+                        })
+                    }
+                    let sortedScore = scores.sort((a, b) => a.score - b.score);
+                    console.log(sortedScore)
+                    this.move(sortedScore.pop().col)
+                },
+                checkWinCondition(colIdx, rowIdx) {
+                    let rowCount = this.countDots(this.getRowElements(rowIdx));
+                    if (rowCount.player >= 4)
+                        return 1;
+                    if (rowCount.opponent >= 4)
+                        return 2;
+                    let colCount = this.countDots(this.getColumnElements(colIdx));
+                    if (colCount.player >= 4)
+                        return 1;
+
+                    if (colCount.opponent >= 4)
+                        return 2;
+                    let diagUpCount = this.countDots(this.getDiagonalUpElements(colIdx, rowIdx));
+                    if (diagUpCount.player >= 4)
+                        return 1;
+                    if (diagUpCount.opponent >= 4)
+                        return 2;
+                    let diagDownCount = this.countDots(this.getDiagonalDownElements(colIdx, rowIdx));
+                    if (diagDownCount.player >= 4)
+                        return 1;
+                    if (diagDownCount.opponent >= 4)
+                        return 2;
+                    return 0;
+                },
+                getAvailableSlots() {
+                    let rowIndexes = [];
+                    for (let i = 0; i < this.columnCount; i++) {
+
+                        const emptyRowIndex = (this.board[i].lastIndexOf(0));
+                        rowIndexes.push(emptyRowIndex);
+
+                    }
+                    return rowIndexes;
+                },
+                scoreTheMove(player, rowIdx, colIdx) {
+
+                },
+                switchPlayer() {
+                    if (this.currentPlayer === 1) {
+                        this.currentPlayer = 2;
+                        this.turnMessage = "Opponent Turn"
+                        setTimeout(() => {
+                            this.AIMove();
+
+
+                        }, 200)
+                    }
+                    else {
+                        this.currentPlayer = 1;
+                        this.turnMessage = "Your Turn"
+                    }
+
+                },
+                getColumnState(colIdx) {
+                    if (this.isFilledColumn(colIdx))
+                        return null;
+                    if (this.hoverColumnIndex === colIdx)
+                        return this.currentPlayer === 1 ? 'player' : 'opponent';
+
+                    return null;
+
+                },
+                getSlotState(slotVal) {
+                    switch (slotVal) {
+                        case 1: return 'player';
+                        case 2: return 'opponent';
+                        default: return null;
+
+                    }
+                },
+                start() {
+                    this.board = Array(this.columnCount).fill(Array(this.rowCount).fill(0));
+                    this.scoreBoard = Array(this.columnCount).fill(Array(this.rowCount).fill(1));
+                    this.gameStart = true;
+                },
+                isFilledColumn(colIdx) {
+                    if (this.board[colIdx])
+                        return this.board[colIdx].filter(x => x === 0).length === 0
+                    return false;
+                }
+                , getMoveScore(colIdx, slotIdx, player) {
+
+
+                    if (this.board[colIdx][slotIdx] > 0)
+                        return 0;
+
+                    let score = 0;
+                    let choose = player === 1 ? "player" : "opponent";
+                    let row = this.getRowElements(slotIdx);
+                    row[colIdx] = player;
+                    score = this.countDots(row)[choose];
+
+
+
+                    let column = this.getColumnElements(colIdx);
+                    column[slotIdx] = player;
+
+                    let tmpScore = this.countDots(column)[choose];
+
+
+
+                    if (tmpScore > score)
+                        score = tmpScore;
+
+                    let diagUp = this.selectDiagonalUpLine(colIdx, slotIdx, player);
+                    tmpScore = this.countDots(diagUp)[choose];
+                    if (tmpScore > score)
+                        score = tmpScore;
+                    let diagDown = this.selectDiagonalDownLine(colIdx, slotIdx, player);
+                    tmpScore = this.countDots(diagDown)[choose];
+                    if (tmpScore > score)
+                        score = tmpScore;
+
+                    return score;
+                },
+                getScore(colIdx, slotIdx) {
+                    let aiScore = this.getMoveScore(colIdx, slotIdx, 2);
+                    if (aiScore === 4)
+                        return 100;
+                    let userScore = this.getMoveScore(colIdx, slotIdx, 1);
+                    if (userScore === 3)
+                        return 10;
+                    if (userScore === 4)
+                        return 20;
+                    return aiScore;
+                }
+            }
+        })      
+    </script>
+
+</body>
+
+</html>
