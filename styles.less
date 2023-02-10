@@ -1,11 +1,22 @@
 #app {
   display: inline-block;
   position: relative;
+  text-align: center;
+  width: 100%;
+  * {
+    font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  }
+
+  h1.title {
+    font-size: large;
+    color: #8e44ad;
+  }
 }
 .game {
-  display: block;
+  display: inline-block;
   position: relative;
   align-items: center;
+  margin: 0 auto;
   .board {
     display: flex;
     flex-direction: row;
@@ -13,14 +24,15 @@
     border: 5px solid brown;
     flex-wrap: wrap;
     margin: 0 auto;
-    margin-top: 120px;
+    margin-top: 120 px;
     padding: 10px;
+    border-radius: 10px;
     .column {
       display: flex;
       flex-direction: column;
       .indicator {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
 
         border: 1px;
@@ -39,8 +51,8 @@
       }
       .slot {
         margin: 5px;
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         background-color: beige;
         border: 2px solid #3498db;
         border-radius: 50%;
@@ -87,6 +99,8 @@
     align-items: center;
     margin-top: 10px;
     button {
+      background-color: #c0392b;
+      color: white;
     }
   }
 }
