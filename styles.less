@@ -3,16 +3,18 @@
   position: relative;
 }
 .game {
-    display: block;
-    position: relative;
-    align-items: center;    
+  display: block;
+  position: relative;
+  align-items: center;
   .board {
     display: flex;
     flex-direction: row;
     background-color: burlywood;
-    border: 2px solid brown;
+    border: 5px solid brown;
     flex-wrap: wrap;
     margin: 0 auto;
+    margin-top: 120px;
+    padding: 10px;
     .column {
       display: flex;
       flex-direction: column;
@@ -20,19 +22,27 @@
         width: 100px;
         height: 100px;
         border-radius: 50%;
+
+        border: 1px;
+        position: absolute;
+        top: -110px;
+
         &.player {
-          background-color: red;
+          background-color: #e74c3c;
+          border: 1px solid #c0392b;
         }
 
         &.opponent {
           background-color: yellow;
+          border: 1px solid #f39c12;
         }
       }
       .slot {
+        margin: 5px;
         width: 100px;
         height: 100px;
         background-color: beige;
-        border: 1px solid black;
+        border: 2px solid #3498db;
         border-radius: 50%;
         text-align: center;
 
@@ -40,11 +50,13 @@
           cursor: pointer;
         }
         &.player {
-          background-color: red;
+          background-color: #e74c3c;
+          border: 2px solid #c0392b;
         }
 
         &.opponent {
           background-color: yellow;
+          border: 2px solid #f39c12;
         }
       }
     }
@@ -59,39 +71,35 @@
     flex-direction: column;
     align-items: center;
     background-color: rgba(241, 241, 241, 0.829);
-   
-    label{
-        font-size: 24px;
+    padding-top: 30%;
+    label {
+      font-size: 24px;
     }
-    input{
-        margin-bottom: 10px;
-        border: 2px solid black;
-        font-size: 16px;
+    input {
+      margin-bottom: 10px;
+      border: 2px solid black;
+      font-size: 16px;
     }
-  
   }
-  .bottom-panel{
+  .bottom-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 10px;
-    button{
-
+    button {
     }
   }
 }
-.btn{
-    width: 200px;
-    height: 60px;
-    font-size: 24px;
-    border: 3px solid black;
-    border-radius: 5px;
-    background-color: rgb(255, 255, 80);
-    &:hover{
-        cursor: pointer;
-        background-color: rgb(255, 255, 0);
-        padding-bottom: 5px;
-    }
-    
-    
+.btn {
+  width: 200px;
+  height: 60px;
+  font-size: 24px;
+  border: 3px solid black;
+  border-radius: 5px;
+  background-color: rgb(255, 255, 80);
+  &:hover {
+    cursor: pointer;
+    background-color: rgb(255, 255, 0);
+    padding-bottom: 5px;
+  }
 }
